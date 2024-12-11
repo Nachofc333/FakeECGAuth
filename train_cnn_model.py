@@ -62,6 +62,9 @@ def process_person(person_folder, person_id):
     return np.array(all_segments), np.array(all_labels)
 
 # Carpeta base con los datos
+
+print("GPUs disponibles:", tf.config.list_physical_devices('GPU'))
+
 base_folder = "BBDD/ecg-id-database-1.0.0"
 X = []  # Lista para las señales
 y = []  # Lista para las etiquetas
@@ -117,7 +120,7 @@ grid_result = grid.fit(X_train, y_train)"""
 history = model.fit(
     X_train, y_train,
     validation_data=(X_val, y_val),
-    epochs=50,
+    epochs=2,
     batch_size=32
 )
 
