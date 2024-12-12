@@ -7,7 +7,7 @@ import neurokit2 as nk  # Para procesar y analizar señales fisiológicas
 import numpy as np  # Para operaciones numéricas y trabajo con arrays
 import tensorflow as tf  # Para trabajar con modelos de aprendizaje profundo
 from tensorflow import keras  # API de alto nivel de TensorFlow
-from prueba_segment_signals import segmentSignals  # Función personalizada para segmentar señales
+from segment_signals import segmentSignals  # Función personalizada para segmentar señales
 from sklearn.model_selection import train_test_split  # Para dividir datos en conjuntos de entrenamiento y prueba
 from keras.models import load_model  # Para cargar modelos de aprendizaje profundo
 from keras.utils import to_categorical  # Para convertir etiquetas a formato categórico
@@ -120,12 +120,12 @@ grid_result = grid.fit(X_train, y_train)"""
 history = model.fit(
     X_train, y_train,
     validation_data=(X_val, y_val),
-    epochs=2,
+    epochs=5,
     batch_size=32
 )
 
 # Guardar el modelo entrenado\model.save("ecg_id_model.h5")
-"""grid_result.save("grid_model.h5")"""
+model.save("ecg_id_model.h5")
 
 # Evaluar el modelo en los datos de prueba
 class_id = 2  # Clase específica para la curva ROC
