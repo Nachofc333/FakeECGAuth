@@ -47,9 +47,10 @@ def process_person(person_folder, person_id):
     # Inicializar listas para almacenar segmentos y etiquetas
     all_segments = []
     all_labels = []
+    segmentos = sorted(glob.glob(os.path.join(person_folder, '*.hea')))[:2]
 
     # Iterar sobre cada archivo en la carpeta de la persona
-    for record_path in glob.glob(os.path.join(person_folder, '*.hea')):
+    for record_path in segmentos:
         base = record_path[:-4]  # Eliminar la extensión del archivo
         annotation_path = base  # Ruta de las anotaciones
 

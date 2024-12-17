@@ -98,7 +98,7 @@ def segmentSignals(signal, r_peaks_annot, normalization=True, person_id= None, f
 
 segmented_signals, refined_r_peaks = segmentSignals(signal, r_peaks_annot)
 
-print("Segmentos obtenidos:", segmented_signals)
+#print("Segmentos obtenidos:", segmented_signals)
 print("Picos R refinados:", refined_r_peaks)
 
 

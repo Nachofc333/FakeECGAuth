@@ -1,12 +1,15 @@
 import neurokit2 as nk  # Librería para procesamiento de señales fisiológicas
+import seaborn as sns
 from tensorflow.keras.models import load_model  # Para cargar modelos preentrenados en TensorFlow
 import numpy as np  # Librería para manejo de arrays numéricos
 from segment_signals import segmentSignals  # Función personalizada para segmentar señales
 import os  # Para operaciones con el sistema de archivos
 import glob  # Para buscar archivos con patrones específicos
 import wfdb  # Librería para manejo de datos en formato WFDB
-
+from sklearn.metrics import confusion_matrix
 import matplotlib.pyplot as plt  # Para graficar datos
+from sklearn.metrics import roc_curve, auc
+from sklearn.preprocessing import label_binarize
 
 # Constantes para el procesamiento de las señales de ECG
 FS = 500  # Frecuencia de muestreo
@@ -85,20 +88,22 @@ for person_id, person_folder in enumerate(sorted(glob.glob(os.path.join(base_fol
     x.extend(segments)  # Agregar segmentos procesados a la lista
     y.extend(labels)  # Agregar etiquetas correspondientes
 
-actual_person = y[7000]  # Obtén la etiqueta real para el latido en la posición 7000
-print(f"La etiqueta real del latido en la posición 7000 es: {actual_person}")
+etiqueta = 3333
+actual_person = y[etiqueta]  # Obtén la etiqueta real para el latido en la posición 7000
 
 # Cargar el modelo preentrenado para predicción
 model = load_model("ecg_id_model.h5")
 
 # Seleccionar un latido específico para realizar predicciones
-new_beat = x[7000]  # Seleccionar el latido en la posición 7000
+print(len(x))
+
+new_beat = x[etiqueta]  # Seleccionar el latido en la posición 7000
 new_beat = new_beat[np.newaxis, ..., np.newaxis]  # Ajustar la forma del array para la entrada del modelo
 
 # Realizar la predicción del modelo
 predictions = model.predict(new_beat)  # Obtener las probabilidades para cada clase
 predicted_person = np.argmax(predictions)  # Identificar la clase con mayor probabilidad
-print(f"La etiqueta real del latido en la posición 7000 es: {actual_person}")
+print(f"La etiqueta real del latido en la posición {etiqueta} es: {actual_person}")
 print(f"PREDICCION: El latido pertenece a la persona: {predicted_person}")  # Mostrar el resultado
 
 if actual_person == predicted_person:
