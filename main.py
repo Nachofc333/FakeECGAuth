@@ -83,7 +83,7 @@ i = 0  # Contador para seguimiento del procesamiento
 
 # Iterar sobre las carpetas de cada persona en la base de datos
 for person_id, person_folder in enumerate(sorted(glob.glob(os.path.join(base_folder, 'Person_*')))):
-    print(f"Procesando persona: {person_folder}")  # Mostrar progreso
+    print(f"Procesando personas: {person_folder}")  # Mostrar progreso
     segments, labels = process_person(person_folder, person_id)  # Procesar registros de la persona
     x.extend(segments)  # Agregar segmentos procesados a la lista
     y.extend(labels)  # Agregar etiquetas correspondientes
@@ -92,25 +92,51 @@ etiqueta = 3333
 actual_person = y[etiqueta]  # Obtén la etiqueta real para el latido en la posición 7000
 
 # Cargar el modelo preentrenado para predicción
-model = load_model("ecg_id_model.h5")
+model = load_model("ecg_id_model_25.h5")
 
 # Seleccionar un latido específico para realizar predicciones
 print(len(x))
+x = np.array(x)  # Convertir la lista a un array NumPy si no lo es
+x = x[..., np.newaxis]  # Añadir la dimensión de característica (n_features = 1)
 
 new_beat = x[etiqueta]  # Seleccionar el latido en la posición 7000
 new_beat = new_beat[np.newaxis, ..., np.newaxis]  # Ajustar la forma del array para la entrada del modelo
 
+
+print(f"x - Min: {x.min()}, Max: {x.max()}, Mean: {x.mean()}, Std: {x.std()}")
+print(f"new_beat - Min: {new_beat.min()}, Max: {new_beat.max()}, Mean: {new_beat.mean()}, Std: {new_beat.std()}")
+
+
+print(f"Forma de x: {x.shape}")  # Debería ser (n_samples, W_LEN, 1)
+print(f"Forma de new_beat: {new_beat.shape}")  # Debería ser (1, W_LEN, 1)
+
+
+
 # Realizar la predicción del modelo
-predictions = model.predict(new_beat)  # Obtener las probabilidades para cada clase
+predictions = model.predict(x)  # Obtener las probabilidades para cada clase
 predicted_person = np.argmax(predictions)  # Identificar la clase con mayor probabilidad
+
+print(f"Forma de predictions: {predictions.shape}")  # Debería ser (n_samples, 90)
+
 print(f"La etiqueta real del latido en la posición {etiqueta} es: {actual_person}")
 print(f"PREDICCION: El latido pertenece a la persona: {predicted_person}")  # Mostrar el resultado
+
+# Resumen de clases predichas
+print(f"Clases predichas únicas: {np.unique(predicted_person)}")
+print(f"Rango de predicciones: {predicted_person.min()} a {predicted_person.max()}")
+
+model.summary()
+
 
 if actual_person == predicted_person:
     print("El modelo predijo correctamente a la persona.")
 else:
     print(f"El modelo falló. Predijo: {predicted_person}, pero la etiqueta real es: {actual_person}")
 
+print("Etiquetas únicas en y:", np.unique(y))
+
+y_pred = np.argmax(predictions, axis=1)  # Clases predichas
+y_true = y  # Clases reales
 
 # Graficar el latido segmentado y la predicción
 plt.plot(new_beat[0, :, 0])  # Graficar la señal del latido
@@ -119,3 +145,34 @@ plt.xlabel("Muestras")  # Etiqueta del eje X
 plt.ylabel("Amplitud")  # Etiqueta del eje Y
 plt.grid()  # Mostrar cuadrícula en el gráfico
 plt.show()  # Mostrar el gráfico
+
+
+# Convertir etiquetas reales (y_true) en formato binario
+n_classes = len(np.unique(y))  # Número total de clases
+y_bin = label_binarize(y_true, classes=range(n_classes))
+
+# Calcular las predicciones (probabilidades de cada clase)
+y_prob = model.predict(x)  # Ya devuelve probabilidades
+
+# Calcular curva ROC y área bajo la curva (AUC) para cada clase
+fpr = {}  # Diccionario para almacenar Tasa de Falsos Positivos
+tpr = {}  # Diccionario para almacenar Tasa de Verdaderos Positivos
+roc_auc = {}  # Diccionario para almacenar el área bajo la curva (AUC)
+
+for i in range(n_classes):
+    fpr[i], tpr[i], _ = roc_curve(y_bin[:, i], y_prob[:, i])
+    roc_auc[i] = auc(fpr[i], tpr[i])
+
+# Visualizar la Curva ROC para todas las clases
+plt.figure(figsize=(15, 10))
+for i in range(n_classes):
+    plt.plot(fpr[i], tpr[i], label=f'Clase {i} (AUC = {roc_auc[i]:.2f})')
+
+# Configuraciones del gráfico
+plt.plot([0, 1], [0, 1], color='navy', linestyle='--')  # Línea de referencia
+plt.xlabel("Tasa de Falsos Positivos (FPR)")
+plt.ylabel("Tasa de Verdaderos Positivos (TPR)")
+plt.title("Curva ROC Multiclase")
+plt.legend(loc="lower right")
+plt.grid()
+plt.show()

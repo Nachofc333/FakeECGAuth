@@ -3,8 +3,10 @@ import os  # Para realizar operaciones del sistema operativo
 import glob  # Para encontrar nombres de archivos que coincidan con un patrón
 import wfdb  # Para trabajar con registros y anotaciones de datos fisiológicos
 import sys  # Para manipular el intérprete de Python
+import collections
 import neurokit2 as nk  # Para procesar y analizar señales fisiológicas
 import numpy as np  # Para operaciones numéricas y trabajo con arrays
+import seaborn as sns
 import tensorflow as tf  # Para trabajar con modelos de aprendizaje profundo
 from tensorflow import keras  # API de alto nivel de TensorFlow
 from segment_signals import segmentSignals  # Función personalizada para segmentar señales
@@ -16,7 +18,7 @@ from sklearn.model_selection import train_test_split, GridSearchCV, KFold  # Her
 from scikeras.wrappers import KerasClassifier  # Envolver modelos Keras para usarlos con scikit-learn
 from sklearn import metrics  # Para evaluar el rendimiento del modelo
 import matplotlib.pyplot as plt  # Para generar gráficos
-from sklearn.metrics import RocCurveDisplay  # Para mostrar curvas ROC
+from sklearn.metrics import RocCurveDisplay, confusion_matrix, recall_score, f1_score  # Para mostrar curvas ROC
 
 # Parámetros constantes
 FS = 500  # Frecuencia de muestreo
@@ -88,6 +90,59 @@ X = X[..., np.newaxis]
 # Convertir las etiquetas a formato categórico
 y = to_categorical(y, num_classes=90)
 
+# stratified cv
+
+kf = KFold(n_splits=10, shuffle=True, random_state=42)
+fold_accuracies = []
+
+for fold, (train_index, val_index) in enumerate(kf.split(X, np.argmax(y, axis=1))):
+    print (f"Fold {fold}")
+
+    X_train_fold, X_val_fold = X[train_index], X[val_index]
+    y_train_fold, y_val_fold = y[train_index], y[val_index]
+
+    model = getModel(seq_len=W_LEN, n_classes=90)
+    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+
+    history = model.fit(
+        X_train_fold, y_train_fold,
+        validation_data=(X_val_fold, y_val_fold),
+        epochs=6,
+        batch_size=32,
+        verbose=1
+    )
+
+    val_loss, val_accuracy = model.evaluate(X_val_fold, y_val_fold, verbose=0)
+    fold_accuracies.append(val_accuracy)
+
+    print(f"Fold {fold + 1} - Accuracy en validación: {val_accuracy:.4f}")
+
+    keras.backend.clear_session()
+
+"""# Convertir las etiquetas one-hot a etiquetas originales
+y_labels = np.argmax(y, axis=1)"""
+
+"""# Generar una matriz de confusión simulada (frecuencias por clase)
+conf_matrix = confusion_matrix(y_labels, y_labels)
+
+# Dibujar la matriz de confusión
+plt.figure(figsize=(15, 15))
+sns.heatmap(conf_matrix, annot=True, fmt="d", cmap="Blues", cbar=False)
+plt.xlabel("Clase")
+plt.ylabel("Clase")
+plt.title("Matriz de Confusión de Frecuencias por Clase (Desbalanceo de Datos)")
+plt.show()
+# Contar la cantidad de muestras por clase"""
+class_counts = collections.Counter(np.argmax(y, axis=1))
+
+# Convertir los conteos a una lista ordenada por clase
+class_distribution = [class_counts[i] for i in range(len(class_counts))]
+
+# Imprimir la lista de distribución de muestras
+print("Distribución de muestras por clase:")
+print(class_distribution)
+print(len(class_distribution))
+
 # Dividir los datos en conjuntos de entrenamiento, validación y prueba
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.25, random_state=42)
@@ -121,12 +176,12 @@ grid_result = grid.fit(X_train, y_train)"""
 history = model.fit(
     X_train, y_train,
     validation_data=(X_val, y_val),
-    epochs=5,
+    epochs=2,
     batch_size=32
 )
 
 # Guardar el modelo entrenado\model.save("ecg_id_model.h5")
-model.save("ecg_id_model.h5")
+model.save("ecg_id_modelkfold6.h5")
 
 # Evaluar el modelo en los datos de prueba
 class_id = 2  # Clase específica para la curva ROC
@@ -144,6 +199,23 @@ _ = display.ax_.set(
 )
 plt.show()
 
+# Roc curve
+"""y_pred_proba = model.predict(X_val)
+y_pred = np.argmax(y_pred_proba, axis=1)
+y_true = np.argmax(y_val, axis=1)
+
+fpr, tpr, thresholds = metrics.roc_curve(y_true, y_pred_proba[:, 1])
+plt.plot([0, 1], [0, 1], '--')
+plt.plot(fpr, tpr, marker='.')
+plt.xlabel('FPR')
+plt.ylabel('TPR')
+plt.title('Curva ROC')
+plt.show()
+
+recall = recall_score(y_true, y_pred, average='macro', zero_division=0)
+f1 = f1_score(y_true, y_pred, average='macro', zero_division=0)
+print(f"Recall: {recall:.4f}")
+print(f"F1-Score: {f1:.4f}")"""
 # Evaluar el modelo en los datos de prueba
 test_loss, test_accuracy = model.evaluate(X_test, y_test)
 print(f"Pérdida en prueba: {test_loss}, Precisión en prueba: {test_accuracy}")
