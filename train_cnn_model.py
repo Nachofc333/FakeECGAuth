@@ -64,6 +64,39 @@ def process_person(person_folder, person_id):
     # Convertir las listas en arrays de NumPy
     return np.array(all_segments), np.array(all_labels)
 
+# Graficar las curvas de pérdida y precisión
+def plot_training_curves(history):
+    # Obtener las métricas del historial
+    train_loss = history.history['loss']
+    val_loss = history.history['val_loss']
+    train_acc = history.history['accuracy']
+    val_acc = history.history['val_accuracy']
+    epochs_range = range(1, len(history.history['loss']) + 1)
+
+    # Configurar el tamaño de la figura
+    plt.figure(figsize=(12, 5))
+
+    # Subplot 1: Curvas de pérdida
+    plt.subplot(1, 2, 1)
+    plt.plot(epochs_range, train_loss, label='Training Loss')
+    plt.plot(epochs_range, val_loss, label='Validation Loss')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.title('Loss Curve')
+    plt.legend()
+
+    # Subplot 2: Curvas de precisión
+    plt.subplot(1, 2, 2)
+    plt.plot(epochs_range, train_acc, label='Training Accuracy')
+    plt.plot(epochs_range, val_acc, label='Validation Accuracy')
+    plt.xlabel('Epochs')
+    plt.ylabel('Accuracy')
+    plt.title('Accuracy Curve')
+    plt.legend()
+
+    plt.show()
+
+
 # Carpeta base con los datos
 
 print("GPUs disponibles:", tf.config.list_physical_devices('GPU'))
@@ -107,7 +140,7 @@ for fold, (train_index, val_index) in enumerate(kf.split(X, np.argmax(y, axis=1)
     history = model.fit(
         X_train_fold, y_train_fold,
         validation_data=(X_val_fold, y_val_fold),
-        epochs=6,
+        epochs=25,
         batch_size=32,
         verbose=1
     )
@@ -172,16 +205,16 @@ grid = GridSearchCV(estimator=model1, param_grid=param_grid, cv=kfold, scoring='
 
 grid_result = grid.fit(X_train, y_train)"""
 
-# Entrenar el modelo
+"""# Entrenar el modelo
 history = model.fit(
     X_train, y_train,
     validation_data=(X_val, y_val),
     epochs=2,
     batch_size=32
-)
+)"""
 
 # Guardar el modelo entrenado\model.save("ecg_id_model.h5")
-model.save("ecg_id_modelkfold6.h5")
+model.save("ecg_id_modelkfold25.h5")
 
 # Evaluar el modelo en los datos de prueba
 class_id = 2  # Clase específica para la curva ROC
@@ -195,10 +228,11 @@ display = RocCurveDisplay.from_predictions(
 _ = display.ax_.set(
     xlabel="False Positive Rate",
     ylabel="True Positive Rate",
-    title="One-vs-Rest ROC curves:\nVirginica vs (Setosa & Versicolor)",
+    title="One-vs-Rest ROC curves:",
 )
 plt.show()
 
+plot_training_curves(history)
 # Roc curve
 """y_pred_proba = model.predict(X_val)
 y_pred = np.argmax(y_pred_proba, axis=1)
