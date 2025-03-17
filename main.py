@@ -89,10 +89,10 @@ for person_id, person_folder in enumerate(sorted(glob.glob(os.path.join(base_fol
     y.extend(labels)  # Agregar etiquetas correspondientes
 
 etiqueta = 3333
-actual_person = y[etiqueta]  # Obtén la etiqueta real para el latido en la posición 7000
+actual_person = y[etiqueta]  # Obtén la etiqueta real para el latido en la posición especifica
 
 # Cargar el modelo preentrenado para predicción
-model = load_model("ecg_id_model_25.h5")
+model = load_model("best_model.h5")
 
 # Seleccionar un latido específico para realizar predicciones
 print(len(x))
@@ -113,7 +113,7 @@ print(f"Forma de new_beat: {new_beat.shape}")  # Debería ser (1, W_LEN, 1)
 
 
 # Realizar la predicción del modelo
-predictions = model.predict(x)  # Obtener las probabilidades para cada clase
+predictions = model.predict(new_beat)  # Obtener las probabilidades para cada clase
 predicted_person = np.argmax(predictions)  # Identificar la clase con mayor probabilidad
 
 print(f"Forma de predictions: {predictions.shape}")  # Debería ser (n_samples, 90)
@@ -152,9 +152,9 @@ n_classes = len(np.unique(y))  # Número total de clases
 y_bin = label_binarize(y_true, classes=range(n_classes))
 
 # Calcular las predicciones (probabilidades de cada clase)
-y_prob = model.predict(x)  # Ya devuelve probabilidades
+y_prob = model.predict(new_beat)  # Ya devuelve probabilidades
 
-# Calcular curva ROC y área bajo la curva (AUC) para cada clase
+"""# Calcular curva ROC y área bajo la curva (AUC) para cada clase
 fpr = {}  # Diccionario para almacenar Tasa de Falsos Positivos
 tpr = {}  # Diccionario para almacenar Tasa de Verdaderos Positivos
 roc_auc = {}  # Diccionario para almacenar el área bajo la curva (AUC)
@@ -176,3 +176,4 @@ plt.title("Curva ROC Multiclase")
 plt.legend(loc="lower right")
 plt.grid()
 plt.show()
+"""

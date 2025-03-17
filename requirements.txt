@@ -84,7 +84,6 @@ requests==2.32.3
 rich==13.9.4
 scikeras==0.13.0
 scikit-learn==1.5.2
-scikit-learn-extra==0.3.0
 scipy==1.12.0
 seaborn==0.13.2
 soundfile==0.12.1

@@ -125,8 +125,10 @@ y = to_categorical(y, num_classes=90)
 
 # stratified cv
 
-kf = KFold(n_splits=10, shuffle=True, random_state=42)
+kf = KFold(n_splits=2, shuffle=True, random_state=42)
 fold_accuracies = []
+best_model = None
+best_accuracy = 0.0  # Inicializa la mejor precisión
 
 for fold, (train_index, val_index) in enumerate(kf.split(X, np.argmax(y, axis=1))):
     print (f"Fold {fold}")
@@ -140,7 +142,7 @@ for fold, (train_index, val_index) in enumerate(kf.split(X, np.argmax(y, axis=1)
     history = model.fit(
         X_train_fold, y_train_fold,
         validation_data=(X_val_fold, y_val_fold),
-        epochs=25,
+        epochs=50,
         batch_size=32,
         verbose=1
     )
@@ -150,7 +152,13 @@ for fold, (train_index, val_index) in enumerate(kf.split(X, np.argmax(y, axis=1)
 
     print(f"Fold {fold + 1} - Accuracy en validación: {val_accuracy:.4f}")
 
-    keras.backend.clear_session()
+    # Guardar el mejor modelo basado en la precisión de validación
+    if val_accuracy > best_accuracy:
+        best_accuracy = val_accuracy
+        best_model = model
+        model.save("best_model.h5")  # Guarda el mejor modelo
+
+    keras.backend.clear_session()  # Liberar memoria entre folds
 
 """# Convertir las etiquetas one-hot a etiquetas originales
 y_labels = np.argmax(y, axis=1)"""
@@ -185,12 +193,12 @@ print(f"Entrenamiento: {X_train.shape}, Validación: {X_test.shape}")
 print(f"Prueba: {y}")
 
 # Obtener el modelo CNN
-model = getModel(seq_len=W_LEN, n_classes=90)
+#model = getModel(seq_len=W_LEN, n_classes=90)
 
 """model = KerasClassifier(build_fn=model1, verbose=1)"""
 
 # Compilar el modelo
-model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+#model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
 """param_grid = {
     'batch_size': [16, 32],                  # Tamaño de batch
@@ -214,7 +222,7 @@ history = model.fit(
 )"""
 
 # Guardar el modelo entrenado\model.save("ecg_id_model.h5")
-model.save("ecg_id_modelkfold25.h5")
+#model.save("ecg_id_model25.h5")
 
 # Evaluar el modelo en los datos de prueba
 class_id = 2  # Clase específica para la curva ROC
