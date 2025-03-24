@@ -49,7 +49,7 @@ class ConditionalVAE(nn.Module):
 
         self.final_layer = nn.Sequential(
             nn.ConvTranspose1d(hidden_dims[-1], 1, kernel_size=3, stride=2, padding=1, output_padding=1),
-            nn.Tanh()
+            #nn.Tanh()
         )
 
     def encode(self, x):
