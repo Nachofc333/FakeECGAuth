@@ -120,3 +120,12 @@ plt.title("ECG Generado - Persona 1")
 
 plt.savefig("FakeECG/img/comparacion_ecg.png")
 plt.show()
+
+generated_beat_np = fake_signal.squeeze()  # Elimina dimensiones extra
+
+plt.plot(generated_beat_np)
+plt.title("Latido generado por el CVAE")
+plt.xlabel("Tiempo (muestras)")
+plt.ylabel("Amplitud")
+plt.savefig("FakeECG/img/prueba.png")
+plt.show()

@@ -26,6 +26,7 @@ from sklearn.metrics import RocCurveDisplay, confusion_matrix, recall_score, f1_
 from CVAE import ConditionalVAE
 from fastdtw import fastdtw
 from scipy.spatial.distance import euclidean
+from sklearn.preprocessing import MinMaxScaler
 
 # Parámetros constantes
 FS = 500  # Frecuencia de muestreo
@@ -224,6 +225,18 @@ print(f"Forma de fake_signal antes: {np.shape(fake_signal)}")
 print(f"Tipo de ecg_real: {type(ecg_real)}, Tipo de fake_signal: {type(fake_signal)}")
 print(f"Dimensión de ecg_real: {ecg_real.ndim}, Dimensión de fake_signal: {fake_signal.ndim}")
 
+print(f"Min y max de ECG real: {ecg_real.min()}, {ecg_real.max()}")
+print(f"Min y max de ECG generado: {fake_signal.min()}, {fake_signal.max()}")
+
+# Obtener min y max del ECG real
+min_real, max_real = ecg_real.min(), ecg_real.max()
+
+# Desnormalizar el ECG generado
+#fake_signal = (fake_signal + 1) * (max_real - min_real) / 2 + min_real
+
+# Verificar los nuevos valores
+print(f"Min y max de ECG generado después de desnormalizar: {fake_signal.min()}, {fake_signal.max()}")
+
 
 plt.plot(fake_signal[0][0])  # Graficar ECG generado
 plt.title("ECG Sintético Generado por CVAE")
@@ -243,11 +256,3 @@ plt.title("ECG Generado - Persona 1")
 
 plt.savefig("comparacion_ecg.png")
 plt.show()
-
-ecg_real = np.asarray(ecg_real, dtype=np.float64).flatten()
-fake_signal = np.asarray(fake_signal, dtype=np.float64).flatten()
-
-print(f"Forma final de ecg_real: {ecg_real.shape}, Forma final de fake_signal: {fake_signal.shape}")
-
-distance, _ = fastdtw(ecg_real, fake_signal, dist=euclidean)
-print(f"Distancia DTW entre ECG real y generado: {distance:.2f}")

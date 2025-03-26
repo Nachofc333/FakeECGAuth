@@ -24,6 +24,7 @@ from sklearn import metrics  # Para evaluar el rendimiento del modelo
 import matplotlib.pyplot as plt  # Para generar gráficos
 from sklearn.metrics import RocCurveDisplay, confusion_matrix, recall_score, f1_score  # Para mostrar curvas ROC
 from CVAE import ConditionalVAE
+from VAE import EstandarVAE
 from fastdtw import fastdtw
 from scipy.spatial.distance import euclidean
 from sklearn.preprocessing import MinMaxScaler

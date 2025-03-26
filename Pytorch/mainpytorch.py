@@ -102,8 +102,10 @@ y = np.array(y)
 x = torch.tensor(x, dtype=torch.float32).unsqueeze(1).to(device)  # Añadir dimensión de canal
 
 # Seleccionar un latido específico
-etiqueta = 7433
+
+etiqueta = 3333
 new_beat = x[etiqueta].unsqueeze(0)  # Agregar dimensión de batch
+
 y_true = y[etiqueta]
 print("Shape de new_beat antes de la predicción:", new_beat.shape)
 
@@ -126,7 +128,7 @@ plt.savefig("latido.png")  # Guarda la curva ROC como imagen
 plt.show()
 
 # Cargar el mejor modelo
-model.load_state_dict(torch.load("model_GPUpytorch.pth"))
+model.load_state_dict(torch.load("model_GPUpytorch250.pth"))
 model.to(device)  # Mover el modelo a GPU si está disponible
 model.eval()
 
