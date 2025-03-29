@@ -69,7 +69,7 @@ def process_person(person_folder, person_id):
         segments = process_record(base, annotation_path)
         all_segments.extend(segments)  # Agregar segmentos a la lista
         all_labels.extend([person_id] * len(segments))  # Agregar etiquetas correspondientes
-
+ 
     return np.array(all_segments), np.array(all_labels)
 
 # Configuración del modelo

@@ -14,6 +14,8 @@ W_LEN_3_4 = 3 * (256 // 4)
 record = wfdb.rdrecord('BBDD/ecg-id-database-1.0.0/Person_01/rec_5')  
 annotation = wfdb.rdann('BBDD/ecg-id-database-1.0.0/Person_01/rec_5', 'atr')  
 
+#record2 = wfdb.rdrecord('BBDD/Person_00/rec_1')  
+#annotation2 = wfdb.rdann('BBDD/Person_00/rec_1', 'atr')  
 
 
 signal = record.p_signal[:, 0]  

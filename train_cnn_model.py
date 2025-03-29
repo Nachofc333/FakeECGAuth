@@ -19,6 +19,8 @@ from scikeras.wrappers import KerasClassifier  # Envolver modelos Keras para usa
 from sklearn import metrics  # Para evaluar el rendimiento del modelo
 import matplotlib.pyplot as plt  # Para generar gráficos
 from sklearn.metrics import RocCurveDisplay, confusion_matrix, recall_score, f1_score  # Para mostrar curvas ROC
+from tensorflow.python.client import device_lib
+print(device_lib.list_local_devices())
 
 # Parámetros constantes
 FS = 500  # Frecuencia de muestreo
@@ -142,7 +144,7 @@ for fold, (train_index, val_index) in enumerate(kf.split(X, np.argmax(y, axis=1)
     history = model.fit(
         X_train_fold, y_train_fold,
         validation_data=(X_val_fold, y_val_fold),
-        epochs=50,
+        epochs=75,
         batch_size=32,
         verbose=1
     )
@@ -156,7 +158,7 @@ for fold, (train_index, val_index) in enumerate(kf.split(X, np.argmax(y, axis=1)
     if val_accuracy > best_accuracy:
         best_accuracy = val_accuracy
         best_model = model
-        model.save("best_model.h5")  # Guarda el mejor modelo
+        model.save("GPU_model75.h5")  # Guarda el mejor modelo
 
     keras.backend.clear_session()  # Liberar memoria entre folds
 
@@ -240,6 +242,31 @@ _ = display.ax_.set(
 )
 plt.show()
 
+plot_training_curves(history)
+
+# Obtener 15 clases aleatorias de 0 a 89 (sin repetir la clase 2)
+np.random.seed(42)  # Para reproducibilidad
+num_classes = 90
+selected_classes = [2] + list(np.random.choice([i for i in range(num_classes) if i != 2], 15, replace=False))
+
+# Generar curvas ROC para cada clase seleccionada
+plt.figure(figsize=(10, 8))
+
+for class_id in selected_classes:
+    display = RocCurveDisplay.from_predictions(
+        y_test[:, class_id],
+        model.predict(X_test)[:, class_id],
+        name=f"Clase {class_id}",
+        plot_chance_level=(class_id == 2)  # Solo una línea de referencia
+    )
+
+plt.xlabel("False Positive Rate")
+plt.ylabel("True Positive Rate")
+plt.title("ROC Curves para Clase 2 y 15 Clases Aleatorias")
+plt.legend()
+plt.show()
+
+# Mostrar curvas de entrenamiento
 plot_training_curves(history)
 # Roc curve
 """y_pred_proba = model.predict(X_val)

@@ -150,7 +150,7 @@ kf = KFold(n_splits=2, shuffle=True, random_state=42)
 fold_accuracies = []
 best_model = None
 best_accuracy = 0.0  
-
+epochs = 2
 
 
 for fold, (train_index, val_index) in enumerate(kf.split(X_train, torch.argmax(y_train, dim=1))):
@@ -178,10 +178,10 @@ for fold, (train_index, val_index) in enumerate(kf.split(X_train, torch.argmax(y
 
 
     # Entrenamiento
-    for epoch in range(250):
+    for epoch in range(epochs):
         model.train()
         running_loss = 0.0
-        train_loader_tqdm = tqdm(train_loader, desc=f"Época {epoch+1}/{250}")
+        train_loader_tqdm = tqdm(train_loader, desc=f"Época {epoch+1}/{epochs}")
         for X_batch, y_batch in train_loader:
             X_batch, y_batch = X_batch.to(device), y_batch.to(device)
 
@@ -214,7 +214,7 @@ for fold, (train_index, val_index) in enumerate(kf.split(X_train, torch.argmax(y
         if val_accuracy > best_accuracy:
             best_accuracy = val_accuracy
             best_model = model
-            torch.save(model.state_dict(), "model_GPUpytorch250.pth")  # Guardar mejor modelo
+            torch.save(model.state_dict(), "Pytorch/model_Dummy.pth")  # Guardar mejor modelo
 
 # 📌 Matriz de Confusión
 y_labels = torch.argmax(y, dim=1).cpu().numpy()
@@ -226,7 +226,7 @@ sns.heatmap(conf_matrix, annot=True, fmt="d", cmap="Blues", cbar=False)
 plt.xlabel("Clase")
 plt.ylabel("Clase")
 plt.title("Matriz de Confusión de Frecuencias por Clase (Desbalanceo de Datos)")
-plt.savefig("img/train/ConfMatrix.png")
+plt.savefig("Pytorch/img/train/ConfMatrix.png")
 plt.show()
 
 # 📌 Curva ROC para la clase 2 y 15 clases aleatorias
@@ -249,5 +249,5 @@ plt.xlabel("False Positive Rate")
 plt.ylabel("True Positive Rate")
 plt.title("Curva ROC (One-vs-Rest) para 16 clases")
 plt.legend()
-plt.savefig("img/train/roc_curve.png")  # Guarda la curva ROC como imagen
+plt.savefig("Pytorch/img/train/roc_curve.png")  # Guarda la curva ROC como imagen
 plt.show()

@@ -32,7 +32,7 @@ from sklearn.preprocessing import MinMaxScaler
 # Parámetros
 num_classes = 90
 latent_dim = 16
-seq_length = 256
+seq_length = 1000
 batch_size = 32
 num_epochs = 80
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -120,7 +120,7 @@ print("Usando dispositivo:", device)
 # 📌 Cargar datos
 base_folder = "BBDD/ecg-id-database-1.0.0"
 num_classes = 90
-num_epochs = 200
+num_epochs = 100
 batch_size = 32
 X = []  # Lista para las señales
 y = []  # Lista para las etiquetas
@@ -175,5 +175,5 @@ for epoch in range(num_epochs):
     print(f"Epoch {epoch+1}, Loss: {total_loss:.4f}")
 
 # 📌 Guardar modelo entrenado
-torch.save(cvae.state_dict(), "FakeECG/cvae_model.pth")
-print("Modelo guardado exitosamente en 'cvae_model.pth'")
+torch.save(cvae.state_dict(), "FakeECG/cvae_model1000.pth")
+print("Modelo guardado exitosamente en 'cvae_model1000.pth'")
