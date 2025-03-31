@@ -30,7 +30,7 @@ from sklearn.preprocessing import MinMaxScaler
 
 # Parámetros
 num_classes = 90
-label = 6 # LA PERSONA REAL ES LABEL + 1
+label = 71 # LA PERSONA REAL ES LABEL + 1
 latent_dim = 16
 seq_length = 256
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -38,7 +38,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"GENERANDO ECG DE LA PERSONA: {label+1}")
 # 📌 Cargar modelo
 cvae = ConditionalVAE(in_channels=1, num_classes=num_classes, latent_dim=latent_dim, seq_length=seq_length).to(device)
-cvae.load_state_dict(torch.load("FakeECG/cvae_model.pth", map_location=device))
+cvae.load_state_dict(torch.load("FakeECG/cvae_model500.pth", map_location=device))
 cvae.eval()
 
 # 📌 Función para generar un ECG sintético

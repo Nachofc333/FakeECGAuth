@@ -32,9 +32,9 @@ from sklearn.preprocessing import MinMaxScaler
 # Parámetros
 num_classes = 90
 latent_dim = 16
-seq_length = 1000
+seq_length = 256
 batch_size = 32
-num_epochs = 80
+num_epochs = 500
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Parámetros constantes
@@ -120,7 +120,7 @@ print("Usando dispositivo:", device)
 # 📌 Cargar datos
 base_folder = "BBDD/ecg-id-database-1.0.0"
 num_classes = 90
-num_epochs = 100
+num_epochs = 500
 batch_size = 32
 X = []  # Lista para las señales
 y = []  # Lista para las etiquetas
@@ -141,7 +141,7 @@ y = F.one_hot(y, num_classes).float()
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 # Guardar X_train en un archivo npy
-np.save("FakeECG/X_train.npy", X_train.cpu().numpy())  # Guardar en formato NumPy
+np.save("FakeECG/X_train500.npy", X_train.cpu().numpy())  # Guardar en formato NumPy
 
 # 📌 Dataset y DataLoader
 train_dataset = TensorDataset(X_train, y_train)
@@ -175,5 +175,5 @@ for epoch in range(num_epochs):
     print(f"Epoch {epoch+1}, Loss: {total_loss:.4f}")
 
 # 📌 Guardar modelo entrenado
-torch.save(cvae.state_dict(), "FakeECG/cvae_model1000.pth")
-print("Modelo guardado exitosamente en 'cvae_model1000.pth'")
+torch.save(cvae.state_dict(), "FakeECG/cvae_model500.pth")
+print("Modelo guardado exitosamente en 'cvae_model.pth'")

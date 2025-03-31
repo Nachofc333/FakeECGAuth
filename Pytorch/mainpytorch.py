@@ -80,7 +80,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = CNNModel(seq_len=W_LEN, n_classes=N_CLASSES).to(device)
 
 # Cargar los pesos del modelo entrenado
-model.load_state_dict(torch.load("model_GPUpytorch.pth", map_location=device))
+model.load_state_dict(torch.load("Pytorch/model_funcional250.pth", map_location=device))
 model.eval()
 
 # Cargar los datos (asumiendo que ya están preprocesados)
@@ -100,8 +100,6 @@ x = np.array(x)
 y = np.array(y)
 
 x = torch.tensor(x, dtype=torch.float32).unsqueeze(1).to(device)  # Añadir dimensión de canal
-
-# Seleccionar un latido específico
 
 etiqueta = 3333
 new_beat = x[etiqueta].unsqueeze(0)  # Agregar dimensión de batch
@@ -128,7 +126,7 @@ plt.savefig("latido.png")  # Guarda la curva ROC como imagen
 plt.show()
 
 # Cargar el mejor modelo
-model.load_state_dict(torch.load("model_GPUpytorch250.pth"))
+model.load_state_dict(torch.load("Pytorch/model_funcional250.pth"))
 model.to(device)  # Mover el modelo a GPU si está disponible
 model.eval()
 

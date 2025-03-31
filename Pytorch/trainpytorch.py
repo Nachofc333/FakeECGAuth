@@ -150,7 +150,7 @@ kf = KFold(n_splits=2, shuffle=True, random_state=42)
 fold_accuracies = []
 best_model = None
 best_accuracy = 0.0  
-epochs = 2
+epochs = 250
 
 
 for fold, (train_index, val_index) in enumerate(kf.split(X_train, torch.argmax(y_train, dim=1))):
@@ -214,7 +214,7 @@ for fold, (train_index, val_index) in enumerate(kf.split(X_train, torch.argmax(y
         if val_accuracy > best_accuracy:
             best_accuracy = val_accuracy
             best_model = model
-            torch.save(model.state_dict(), "Pytorch/model_Dummy.pth")  # Guardar mejor modelo
+            torch.save(model.state_dict(), "Pytorch/model_250.pth")  # Guardar mejor modelo
 
 # 📌 Matriz de Confusión
 y_labels = torch.argmax(y, dim=1).cpu().numpy()
